@@ -1,0 +1,120 @@
+{% load static %}
+
+<header class="section-header">
+  <!-- Top Bar -->
+  <div class="bg-light border-bottom py-2">
+    <div class="container d-flex justify-content-between align-items-center">
+      <ul class="list-inline mb-0">
+        <li class="list-inline-item">
+          <a href="tel:+123456789" class="text-dark">
+            <i class="fa fa-phone"></i> Call Us: +123456789
+          </a>
+        </li>
+        <li class="list-inline-item">
+          <a href="mailto:info@example.com" class="text-dark">
+            <i class="fa fa-envelope"></i> info@example.com
+          </a>
+        </li>
+      </ul>
+      <ul class="list-inline mb-0">
+        <li class="list-inline-item"><a href="#" class="text-dark"><i class="fa fa-info-circle"></i> Help Center</a></li>
+        <li class="list-inline-item"><a href="#" class="text-dark"><i class="fa fa-truck"></i> Order Tracking</a></li>
+        <li class="list-inline-item"><a href="#" class="text-dark"><i class="fa fa-question-circle"></i> FAQs</a></li>
+        <li class="list-inline-item dropdown">
+          <a href="#" class="text-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-language"></i> English
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Spanish</a>
+            <a class="dropdown-item" href="#">French</a>
+            <a class="dropdown-item" href="#">German</a>
+          </div>
+        </li>
+        <li class="list-inline-item dropdown">
+          <a href="#" class="text-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-dollar-sign"></i> USD
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">EUR</a>
+            <a class="dropdown-item" href="#">AED</a>
+            <a class="dropdown-item" href="#">RUB</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+
+      <!-- Toggler Button -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar Content -->
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <!-- Left Side: Categories Dropdown and Links -->
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a></li>
+          <!-- Categories Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-list"></i> Categories
+            </a>
+            <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+              <a class="dropdown-item" href="{% url 'store' %}"><i class="fa fa-box-open"></i> All Products</a>
+              {% for category in link %}
+              <a class="dropdown-item" href="{{ category.get_url }}"><i class="fa fa-tag"></i> {{ category.category_name }}</a>
+              {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'store' %}"><i class="fa fa-store"></i> Store</a></li>
+        </ul>
+
+        <!-- Center: Search Bar -->
+        <form class="search-form" action="{% url 'search' %}" method="GET">
+          <div class="input-group">
+            <input class="form-control" type="search" placeholder="Search for products, brands, and more" aria-label="Search" name="keyword">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="submit">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Right Side: User Account and Cart -->
+        <ul class="navbar-nav ml-auto">
+          <!-- User Account Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userAccountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-user"></i> Account
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userAccountDropdown">
+              {% if user.is_authenticated %}
+                <a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+                <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a>
+              {% else %}
+                <a class="dropdown-item" href="{% url 'login' %}"><i class="fa fa-sign-in-alt"></i> Sign In</a>
+                <a class="dropdown-item" href="{% url 'register' %}"><i class="fa fa-user-plus"></i> Register</a>
+              {% endif %}
+              <a class="dropdown-item" href="#"><i class="fa fa-box"></i> My Orders</a>
+              <a class="dropdown-item" href="#"><i class="fa fa-heart"></i> Wishlist</a>
+            </div>
+          </li>
+
+          <!-- Shopping Cart -->
+          <li class="nav-item">
+            <a href="{% url 'cart' %}" class="nav-link">
+              <i class="fa fa-shopping-cart"></i>
+              <span class="badge badge-pill badge-danger">{{ cart_count }}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
