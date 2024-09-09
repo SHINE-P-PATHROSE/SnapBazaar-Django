@@ -1,0 +1,2 @@
+# SnapBazaar-Django
+Ecommerce website
