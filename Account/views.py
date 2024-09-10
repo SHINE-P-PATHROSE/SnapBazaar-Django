@@ -4,7 +4,6 @@ from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-
 # Verification email
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -12,10 +11,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-
 from Cart.views import _cart_id
 from Cart.models import Cart, CartItem
-# import requests
 
 
 def register(request):
@@ -35,7 +32,7 @@ def register(request):
             # USER ACTIVATION
             current_site = get_current_site(request)
             mail_subject = 'Please activate your account'
-            message = render_to_string('accounts/account_verification_email.html', {
+            message = render_to_string('account/account_verification_email.html', {
                 'user': user,
                 'domain': current_site,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -45,7 +42,7 @@ def register(request):
             send_email = EmailMessage(mail_subject, message, to=[to_email])
             send_email.send()
             # messages.success(request, 'Thank you for registering with us. We have sent you a verification email to your email address [rathan.kumar@gmail.com]. Please verify it.')
-            return redirect('/accounts/login/?command=verification&email='+email)
+            return redirect('/account/login/?command=verification&email='+email)
     else:
         form = RegistrationForm()
     context = {
@@ -110,7 +107,7 @@ def login(request):
                 params = dict(x.split('=') for x in query.split('&'))
                 if 'next' in params:
                     nextPage = params['next']
-                    return redirect(nextPage)
+                    return redirect(nextPage)                
             except:
                 return redirect('dashboard')
         else:
@@ -157,7 +154,7 @@ def forgotPassword(request):
             # Reset password email
             current_site = get_current_site(request)
             mail_subject = 'Reset Your Password'
-            message = render_to_string('accounts/reset_password_email.html', {
+            message = render_to_string('account/reset_password_email.html', {
                 'user': user,
                 'domain': current_site,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),

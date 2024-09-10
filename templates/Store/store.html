@@ -88,76 +88,54 @@
             </div>
           </article>
           <!-- Sizes -->
+<!-- Size Filter with Toggle Buttons -->
+<article class="filter-group">
+  <header class="card-header">
+    <a href="#" data-toggle="collapse" data-target="#collapse_4" aria-expanded="true">
+      <i class="icon-control fa fa-chevron-down"></i>
+      <h6 class="title">Sizes</h6>
+    </a>
+  </header>
+  <div class="filter-content collapse show" id="collapse_4">
+    <div class="card-body">
+      <div class="btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+        <label class="btn btn-outline-secondary mr-2">
+          <input type="radio" name="size" value="XS" autocomplete="off"> XS
+        </label>
+        <label class="btn btn-outline-secondary mr-2">
+          <input type="radio" name="size" value="SM" autocomplete="off"> SM
+        </label>
+        <label class="btn btn-outline-secondary mr-2">
+          <input type="radio" name="size" value="LG" autocomplete="off"> LG
+        </label>
+        <label class="btn btn-outline-secondary">
+          <input type="radio" name="size" value="XXL" autocomplete="off"> XXL
+        </label>
+      </div>
+    </div> <!-- card-body.// -->
+  </div>
+</article>
+
+<!-- Price Range Filter with Slider -->
           <article class="filter-group">
-            <header class="card-header">
-              <a href="#" data-toggle="collapse" data-target="#collapse_4" aria-expanded="true">
-                <i class="icon-control fa fa-chevron-down"></i>
-                <h6 class="title">Sizes</h6>
-              </a>
-            </header>
-            <div class="filter-content collapse show" id="collapse_4">
-              <div class="card-body">
-                <div class="d-flex flex-wrap">
-                  <label class="checkbox-btn mr-2">
-                    <input type="checkbox">
-                    <span class="btn btn-outline-secondary">XS</span>
-                  </label>
-                  <label class="checkbox-btn mr-2">
-                    <input type="checkbox">
-                    <span class="btn btn-outline-secondary">SM</span>
-                  </label>
-                  <label class="checkbox-btn mr-2">
-                    <input type="checkbox">
-                    <span class="btn btn-outline-secondary">LG</span>
-                  </label>
-                  <label class="checkbox-btn">
-                    <input type="checkbox">
-                    <span class="btn btn-outline-secondary">XXL</span>
-                  </label>
-                </div>
-              </div> <!-- card-body.// -->
-            </div>
-          </article>
-          <!-- Price Range -->
-          <article class="filter-group">
-            <header class="card-header">
-              <a href="#" data-toggle="collapse" data-target="#collapse_3" aria-expanded="true">
-                <i class="icon-control fa fa-chevron-down"></i>
-                <h6 class="title">Price Range</h6>
-              </a>
+            <header class="card-header" data-toggle="collapse" data-target="#collapse_3" aria-expanded="true">
+              <i class="icon-control fa fa-chevron-down"></i>
+              <h6 class="title">Price Range</h6>
             </header>
             <div class="filter-content collapse show" id="collapse_3">
               <div class="card-body">
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label>Min</label>
-                    <select class="form-control">
-                      <option value="0">$0</option>
-                      <option value="50">$50</option>
-                      <option value="100">$100</option>
-                      <option value="150">$150</option>
-                      <option value="200">$200</option>
-                      <option value="500">$500</option>
-                      <option value="1000">$1000</option>
-                    </select>
-                  </div>
-                  <div class="form-group col-md-6 text-right">
-                    <label>Max</label>
-                    <select class="form-control">
-                      <option value="50">$50</option>
-                      <option value="100">$100</option>
-                      <option value="150">$150</option>
-                      <option value="200">$200</option>
-                      <option value="500">$500</option>
-                      <option value="1000">$1000</option>
-                      <option value="2000">$2000+</option>
-                    </select>
-                  </div>
+                <div class="form-group">
+                  <label for="priceRange">Price Range</label>
+                  <input type="range" class="form-control-range" id="priceRange" min="0" max="2000" step="50" oninput="updatePriceLabel(this.value)">
+                  <p>Selected range: <span id="priceRangeLabel">$0 - $2000</span></p>
                 </div>
                 <button class="btn btn-primary btn-block">Apply</button>
-              </div> <!-- card-body.// -->
+              </div>
             </div>
           </article>
+
+
+
         </div> <!-- card.// -->
       </aside> <!-- col.// -->
 
@@ -251,5 +229,11 @@
   </div> <!-- container // -->
 </section>
 <!-- ========================= SECTION CONTENT END // ========================= -->
+
+<script>
+  function updatePriceLabel(value) {
+    document.getElementById('priceRangeLabel').innerText = `$0 - $${value}`;
+  }
+</script>
 
 {% endblock %}
