@@ -1,85 +1,51 @@
 {% extends 'base.html' %}
-{% load static %}
+
 
 {% block content %}
-<section class="section-content padding-y bg">
-    {% include 'includes/alerts.html' %}
-    <div class="container">
-        <div class="row">
-            <aside class="col-md-3">
-                <!-- SIDEBAR -->
-                <ul class="list-group">
-                    <a class="list-group-item active" href="#">My Order History</a>
-                    <a class="list-group-item" href="#">Transactions</a>
-                    <a class="list-group-item" href="#">Return and Refunds</a>
-                    <a class="list-group-item" href="#">Settings</a>
-                    <a class="list-group-item" href="#">My Selling Items</a>
-                    <a class="list-group-item" href="#">Received Orders</a>
-                </ul>
-                <br>
-                <a class="btn btn-light btn-block" href="{% url 'logout' %}">
-                    <i class="fa fa-power-off"></i>
-                    <span class="text">Log Out</span>
-                </a>
-                <!-- SIDEBAR .//END -->
-            </aside>
-            <main class="col-md-9">
-                <article class="card">
-                    <header class="card-header">
-                        <strong class="d-inline-block mr-3">Order ID: {{ order.id }}</strong>
-                        <span>Order Date: {{ order.date }}</span>
-                    </header>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h6 class="text-muted">Delivery to</h6>
-                                <p>
-                                    {{ order.delivery_name }} <br>
-                                    Phone: {{ order.delivery_phone }} <br>
-                                    Email: {{ order.delivery_email }} <br>
-                                    Location: {{ order.delivery_address }} <br>
-                                    {% if order.delivery_pobox %}
-                                    P.O. Box: {{ order.delivery_pobox }}
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="col-md-4">
-                                <h6 class="text-muted">Payment</h6>
-                                <span class="text-success">
-                                    <i class="fab fa-lg fa-cc-{{ order.payment_method }}"></i>
-                                    {{ order.payment_method|title }} **** {{ order.payment_last4 }}
-                                </span>
-                                <p>
-                                    Subtotal: ${{ order.subtotal }} <br>
-                                    Shipping Fee: ${{ order.shipping_fee }} <br>
-                                    <span class="b">Total: ${{ order.total }}</span>
-                                </p>
-                            </div>
-                        </div> <!-- row.// -->
-                    </div> <!-- card-body .// -->
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            {% for item in order.items.all %}
-                            <tr>
-                                <td width="65">
-                                    <img src="{% static 'images/items/'|add:item.product_image %}" class="img-xs border" alt="{{ item.product_name }}">
-                                </td>
-                                <td>
-                                    <p class="title mb-0">{{ item.product_name }}</p>
-                                    <var class="price text-muted">USD {{ item.product_price }}</var>
-                                </td>
-                                <td> Seller <br> {{ item.seller_name }} </td>
-                                <td width="250">
-                                    <a href="{% url 'track_order' item.order_id %}" class="btn btn-outline-primary">Track Order</a>
-                                    <a href="{% url 'order_details' item.order_id %}" class="btn btn-light">Details</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </div> <!-- table-responsive .end// -->
-                </article> <!-- order-group.// -->
-            </main>
-        </div> <!-- row.// -->
-    </div>
+
+<section class="section-conten padding-y bg">
+
+{% include 'includes/alerts.html' %}
+<div class="container">
+	<div class="row">
+	{% include 'includes/dashboard_sidebar.html' %}
+	<main class="col-md-9">
+		<article class="card">
+		<header class="card-header">
+			<strong class="d-inline-block mr-3">Logged in as:</strong>
+			<span>{{user.full_name}}</span>
+		</header>
+		<div class="card-body">
+			<div class="row">
+
+			<div class="col-md-6">
+				<div class="card" style="text-align:center;">
+					<div class="card-body">
+						<h5 class="card-title">Total Orders</h5>
+						<h4>{{orders_count}}</h4>
+						<a href="{% url 'my_orders' %}">View Orders</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="card" style="text-align:center;">
+					<div class="card-body">
+						<img src="{{userprofile.profile_picture.url}}" alt="User Profile Picture" width="50" height="50" style="border-radius:50%;">
+						<p class="mb-0">{{user.email}}</p>
+						<p>{{user.phone_number}}</p>
+					</div>
+				</div>
+			</div>
+
+			</div> <!-- row.// -->
+		</div> <!-- card-body .// -->
+
+		</article> <!-- order-group.// -->
+	</main>
+</div> <!-- row.// -->
+</div>
+
+
 </section>
+
 {% endblock %}

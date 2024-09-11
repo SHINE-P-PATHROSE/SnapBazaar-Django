@@ -22,7 +22,7 @@ def store(request, category_slug=None):
         products = products.filter(category=categories)
 
     # Pagination setup (6 products per page)
-    paginator = Paginator(products, 1)
+    paginator = Paginator(products, 3)
     page = request.GET.get('page')
 
     try:
