@@ -5,7 +5,7 @@ from oders.models import Order, OrderProduct
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-
+import requests
 # Verification email
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -13,9 +13,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-
+from django.core.exceptions import ObjectDoesNotExist
 from Cart.views import _cart_id
-
+from Cart.models import Cart, CartItem
 
 def register(request):
     if request.method == 'POST':
@@ -64,63 +64,62 @@ def login(request):
         email = request.POST['email']
         password = request.POST['password']
 
-        user = auth.authenticate(email=email, password=password)
+        user = auth.authenticate(request, email=email, password=password)
 
         if user is not None:
             try:
+                # Attempt to get the user's cart, else continue without it
                 cart = Cart.objects.get(cart_id=_cart_id(request))
-                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
-                if is_cart_item_exists:
-                    cart_item = CartItem.objects.filter(cart=cart)
+                cart_item = CartItem.objects.filter(cart=cart)
 
-                    # Getting the product variations by cart id
+                if cart_item.exists():
                     product_variation = []
                     for item in cart_item:
                         variation = item.variations.all()
                         product_variation.append(list(variation))
 
-                    # Get the cart items from the user to access his product variations
-                    cart_item = CartItem.objects.filter(user=user)
+                    # Check if cart items exist for the user
+                    user_cart_items = CartItem.objects.filter(user=user)
                     ex_var_list = []
-                    id = []
-                    for item in cart_item:
+                    item_ids = []
+                    for item in user_cart_items:
                         existing_variation = item.variations.all()
                         ex_var_list.append(list(existing_variation))
-                        id.append(item.id)
+                        item_ids.append(item.id)
 
-                    # product_variation = [1, 2, 3, 4, 6]
-                    # ex_var_list = [4, 6, 3, 5]
-
+                    # Handling cart updates
                     for pr in product_variation:
                         if pr in ex_var_list:
                             index = ex_var_list.index(pr)
-                            item_id = id[index]
+                            item_id = item_ids[index]
                             item = CartItem.objects.get(id=item_id)
                             item.quantity += 1
                             item.user = user
                             item.save()
                         else:
-                            cart_item = CartItem.objects.filter(cart=cart)
-                            for item in cart_item:
-                                item.user = user
-                                item.save()
-            except:
+                            # Assign all cart items to the logged-in user
+                            cart_item.update(user=user)
+            except ObjectDoesNotExist:
+                # Cart or CartItem does not exist, skip the handling
                 pass
+
+            # Log the user in
             auth.login(request, user)
             messages.success(request, 'You are now logged in.')
+
+            # Handle redirection after login (if any)
             url = request.META.get('HTTP_REFERER')
             try:
                 query = requests.utils.urlparse(url).query
-                # next=/cart/checkout/
                 params = dict(x.split('=') for x in query.split('&'))
                 if 'next' in params:
-                    nextPage = params['next']
-                    return redirect(nextPage)
-            except:
+                    return redirect(params['next'])
+            except Exception:
                 return redirect('dashboard')
         else:
             messages.error(request, 'Invalid login credentials')
             return redirect('login')
+
     return render(request, 'account/login.html')
 
 
@@ -148,12 +147,29 @@ def activate(request, uidb64, token):
         return redirect('register')
 
 
-@login_required(login_url = 'login')
+# @login_required(login_url = 'login')
+# def dashboard(request):
+#     orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered=True)
+#     orders_count = orders.count()
+#
+#     userprofile = UserProfile.objects.get(user_id=request.user.id)
+#     context = {
+#         'orders_count': orders_count,
+#         'userprofile': userprofile,
+#     }
+#     return render(request, 'account/dashboard.html', context)
+@login_required(login_url='login')
 def dashboard(request):
     orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered=True)
     orders_count = orders.count()
 
-    userprofile = UserProfile.objects.get(user_id=request.user.id)
+    # Attempt to get the user profile, or create it if it doesn't exist
+    userprofile, created = UserProfile.objects.get_or_create(user_id=request.user.id)
+
+    # Pass the user profile or default image
+    if not userprofile.profile_picture:
+        userprofile.profile_picture = 'path_to_default_image.jpg'  # Use a default image path
+
     context = {
         'orders_count': orders_count,
         'userprofile': userprofile,
@@ -239,9 +255,17 @@ def my_orders(request):
     return render(request, 'account/my_orders.html', context)
 
 
+
+
+
 @login_required(login_url='login')
 def edit_profile(request):
     userprofile = get_object_or_404(UserProfile, user=request.user)
+
+    # If the profile doesn't have a picture, set it to a default picture
+    if not userprofile.profile_picture:
+        userprofile.profile_picture = 'path/to/default/profile_picture.jpg'
+
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
@@ -253,12 +277,14 @@ def edit_profile(request):
     else:
         user_form = UserForm(instance=request.user)
         profile_form = UserProfileForm(instance=userprofile)
+
     context = {
         'user_form': user_form,
         'profile_form': profile_form,
         'userprofile': userprofile,
     }
     return render(request, 'account/edit_profile.html', context)
+
 
 
 @login_required(login_url='login')
